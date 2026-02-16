@@ -1,0 +1,141 @@
+/* =======================================================
+   1. CREATE DATABASE
+======================================================= */
+
+DROP DATABASE IF EXISTS mall_analysis;
+CREATE DATABASE mall_analysis;
+USE mall_analysis;
+
+
+/* =======================================================
+   2. CREATE MAIN TABLE
+======================================================= */
+
+CREATE TABLE customers (
+    customer_id INT PRIMARY KEY,
+    gender VARCHAR(10),
+    age INT,
+    annual_income INT,
+    spending_score INT
+);
+
+
+/* =======================================================
+   3. IMPORT DATA
+   (Ganti path sesuai lokasi file CSV kamu)
+======================================================= */
+
+LOAD DATA INFILE 'C:/Users/USERNAME/Downloads/mall_customers.csv'
+INTO TABLE customers
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
+
+
+/* =======================================================
+   4. FEATURE ENGINEERING
+======================================================= */
+
+-- Tambah Age Group
+ALTER TABLE customers ADD age_group VARCHAR(20);
+
+UPDATE customers
+SET age_group =
+CASE
+    WHEN age < 25 THEN 'Young'
+    WHEN age BETWEEN 25 AND 40 THEN 'Adult'
+    ELSE 'Senior'
+END;
+
+
+-- Tambah Income Level
+ALTER TABLE customers ADD income_level VARCHAR(20);
+
+UPDATE customers
+SET income_level =
+CASE
+    WHEN annual_income < 40 THEN 'Low Income'
+    WHEN annual_income BETWEEN 40 AND 70 THEN 'Middle Income'
+    ELSE 'High Income'
+END;
+
+
+-- Tambah Spending Category
+ALTER TABLE customers ADD spending_category VARCHAR(20);
+
+UPDATE customers
+SET spending_category =
+CASE
+    WHEN spending_score < 40 THEN 'Low Spender'
+    WHEN spending_score BETWEEN 40 AND 70 THEN 'Medium Spender'
+    ELSE 'High Spender'
+END;
+
+
+/* =======================================================
+   5. KPI SUMMARY TABLE
+======================================================= */
+
+CREATE TABLE kpi_summary AS
+SELECT
+    COUNT(*) AS total_customers,
+    ROUND(AVG(annual_income),2) AS avg_income,
+    ROUND(AVG(spending_score),2) AS avg_spending_score,
+    SUM(CASE WHEN spending_category = 'High Spender' THEN 1 ELSE 0 END) 
+        AS total_high_spenders
+FROM customers;
+
+
+/* =======================================================
+   6. AGGREGATION TABLES FOR DASHBOARD
+======================================================= */
+
+-- Gender Distribution
+CREATE TABLE gender_distribution AS
+SELECT gender, COUNT(*) AS total
+FROM customers
+GROUP BY gender;
+
+
+-- Age Group Distribution
+CREATE TABLE age_group_distribution AS
+SELECT age_group, COUNT(*) AS total
+FROM customers
+GROUP BY age_group;
+
+
+-- Income Level Distribution
+CREATE TABLE income_distribution AS
+SELECT income_level, COUNT(*) AS total
+FROM customers
+GROUP BY income_level;
+
+
+-- Spending Category Distribution
+CREATE TABLE spending_distribution AS
+SELECT spending_category, COUNT(*) AS total
+FROM customers
+GROUP BY spending_category;
+
+
+-- Average Spending by Income Level
+CREATE TABLE spending_by_income AS
+SELECT income_level, ROUND(AVG(spending_score),2) AS avg_spending
+FROM customers
+GROUP BY income_level;
+
+
+-- Average Income by Age Group
+CREATE TABLE income_by_agegroup AS
+SELECT age_group, ROUND(AVG(annual_income),2) AS avg_income
+FROM customers
+GROUP BY age_group;
+
+
+/* =======================================================
+   7. VALIDATION CHECK
+======================================================= */
+
+SELECT * FROM customers LIMIT 10;
+SELECT * FROM kpi_summary;
