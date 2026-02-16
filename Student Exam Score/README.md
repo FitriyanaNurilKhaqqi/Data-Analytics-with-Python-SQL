@@ -11,6 +11,8 @@ This project analyzes student academic performance using Python. The dataset con
 
 The file student_exam_scores.csv contains the raw dataset with student-level information, including study hours, attendance, sleep quality, exam scores, gender, age, and income level.
 
+Link Data Source: [Click here](https://www.kaggle.com/datasets/grandmaster07/student-exam-score-dataset-analysis)
+
 [student_exam_scores.ipnyb](https://github.com/FitriyanaNurilKhaqqi/Data-Analytics-with-Python-SQL/blob/main/Student%20Exam%20Score/student_exam_scores.ipynb)
 
 The file student_exam_scores.ipynb is a Jupyter Notebook used to perform data cleaning, conduct exploratory data analysis (EDA), calculate key performance indicators (KPIs), create data visualizations, and build the final dashboard.
